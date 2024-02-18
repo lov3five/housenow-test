@@ -79,6 +79,37 @@ export const friendshipRequestRouter = router({
        * scenario for Question 3
        *  - Run `yarn test` to verify your answer
        */
+
+      // Code check if the friendship request already exists ? get the status : ...
+      const friendshipRequestExists = await ctx.db
+        .selectFrom('friendships')
+        .where('userId', '=', ctx.session.userId)
+        .where('friendUserId', '=', input.friendUserId)
+        .select('status')
+        .executeTakeFirst()
+
+      if (friendshipRequestExists) {
+        // If the friendship request already exists and the status is `declined`, update the status to `requested` and return
+        if (
+          friendshipRequestExists.status ===
+          FriendshipStatusSchema.Values['declined']
+        ) {
+          await ctx.db
+            .updateTable('friendships')
+            .set({ status: FriendshipStatusSchema.Values['requested'] })
+            .where('userId', '=', ctx.session.userId)
+            .where('friendUserId', '=', input.friendUserId)
+            .executeTakeFirst()
+          return
+        } else if (
+          friendshipRequestExists.status ===
+          FriendshipStatusSchema.Values['requested']
+        ) {
+          return
+        }
+      }
+
+      // If the friendship request does not exist, create a new friendship request record
       return ctx.db
         .insertInto('friendships')
         .values({
@@ -127,7 +158,7 @@ export const friendshipRequestRouter = router({
           .executeTakeFirst()
 
         // Create a new friendship request record with the opposite user as the friend
-        // Check if the friendship request already exists
+        // Code check the friendship request already exists
         const friendshipExists = await t
           .selectFrom('friendships')
           .select('id')
@@ -135,6 +166,7 @@ export const friendshipRequestRouter = router({
           .where('friendUserId', '=', input.friendUserId)
           .executeTakeFirst()
 
+        // If the friendship request does not exist, create a new friendship request record with the opposite user as the friend
         if (!friendshipExists) {
           await t
             .insertInto('friendships')
@@ -144,7 +176,10 @@ export const friendshipRequestRouter = router({
               status: FriendshipStatusSchema.Values['accepted'],
             })
             .executeTakeFirst()
-        } else {
+        }
+
+        // If the friendship request already exists, update the status to accepted
+        else {
           await t
             .updateTable('friendships')
             .set({ status: FriendshipStatusSchema.Values['accepted'] })

@@ -2,6 +2,7 @@ import type { Database } from '@/server/db'
 
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
+import { fr } from '@faker-js/faker'
 
 import { FriendshipStatusSchema } from '@/utils/server/friendship-schemas'
 import { protectedProcedure } from '@/server/trpc/procedures'
@@ -75,6 +76,25 @@ export const myFriendRouter = router({
 })
 
 const userTotalFriendCount = (db: Database) => {
+  return db
+    .selectFrom('friendships')
+    .where('friendships.status', '=', FriendshipStatusSchema.Values['accepted'])
+    .select((eb) => [
+      'friendships.userId',
+      eb.fn.count('friendships.friendUserId').as('totalFriendCount'),
+    ])
+    .groupBy('friendships.userId')
+}
+
+/* Test data
+  A - B 
+  A - C 
+  A - D 
+  B - C 
+  - A có 1 bạn chung với B (C)
+  ...
+*/
+const userMutualFriendCount = (db: Database) => {
   return db
     .selectFrom('friendships')
     .where('friendships.status', '=', FriendshipStatusSchema.Values['accepted'])
