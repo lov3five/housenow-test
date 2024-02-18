@@ -117,6 +117,41 @@ export const friendshipRequestRouter = router({
          *  - https://kysely-org.github.io/kysely/classes/Kysely.html#insertInto
          *  - https://kysely-org.github.io/kysely/classes/Kysely.html#updateTable
          */
+
+        // Update the friendship request to have status `accepted`
+        await t
+          .updateTable('friendships')
+          .set({ status: FriendshipStatusSchema.Values['accepted'] })
+          .where('userId', '=', input.friendUserId)
+          .where('friendUserId', '=', ctx.session.userId)
+          .executeTakeFirst()
+
+        // Create a new friendship request record with the opposite user as the friend
+        // Check if the friendship request already exists
+        const friendshipExists = await t
+          .selectFrom('friendships')
+          .select('id')
+          .where('userId', '=', ctx.session.userId)
+          .where('friendUserId', '=', input.friendUserId)
+          .executeTakeFirst()
+
+        if (!friendshipExists) {
+          await t
+            .insertInto('friendships')
+            .values({
+              userId: ctx.session.userId,
+              friendUserId: input.friendUserId,
+              status: FriendshipStatusSchema.Values['accepted'],
+            })
+            .executeTakeFirst()
+        } else {
+          await t
+            .updateTable('friendships')
+            .set({ status: FriendshipStatusSchema.Values['accepted'] })
+            .where('userId', '=', ctx.session.userId)
+            .where('friendUserId', '=', input.friendUserId)
+            .executeTakeFirst()
+        }
       })
     }),
 
