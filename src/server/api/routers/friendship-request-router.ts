@@ -176,7 +176,7 @@ export const friendshipRequestRouter = router({
       // Set the friendship request status to `declined`
       await ctx.db
         .updateTable('friendships')
-        .set('status', FriendshipStatusSchema.Values['declined'])
+        .set({ status: FriendshipStatusSchema.Values['declined'] })
         .where('userId', '=', input.friendUserId)
         .where('friendUserId', '=', ctx.session.userId)
         .executeTakeFirst()
