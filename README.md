@@ -76,14 +76,14 @@ to the repo via email to `binhdv@thenowproject.com.vn` and
   - [ ] Attempt Question 3
   - [ ] Attempt Question 4
   - [x] Finish Question 1
-  - [ ] Finish Question 2
+  - [x] Finish Question 2
   - [ ] Finish Question 3
   - [ ] Finish Question 4
   - [ ] Run `yarn lint` with no errors
   - [ ] Run `yarn type-check` with no errors
   - [x] Pass test Question 1 / Scenario 1
   - [x] Pass test Question 1 / Scenario 2
-  - [ ] Pass test Question 2 / Scenario 1
+  - [x] Pass test Question 2 / Scenario 1
   - [ ] Pass test Question 3 / Scenario 1
   - [ ] Pass test Question 3 / Scenario 2
   - [ ] Pass test Question 4 / Scenario 1
