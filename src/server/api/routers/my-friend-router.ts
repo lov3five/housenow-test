@@ -2,7 +2,6 @@ import type { Database } from '@/server/db'
 
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
-import { fr } from '@faker-js/faker'
 
 import { FriendshipStatusSchema } from '@/utils/server/friendship-schemas'
 import { protectedProcedure } from '@/server/trpc/procedures'

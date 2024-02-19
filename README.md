@@ -87,4 +87,4 @@ to the repo via email to `binhdv@thenowproject.com.vn` and
   - [x] Pass test Question 3 / Scenario 1
   - [x] Pass test Question 3 / Scenario 2
   - [x] Pass test Question 4 / Scenario 1
-  - [ ] Pass test Question 4 / Scenario 2
+  - [x] Pass test Question 4 / Scenario 2
