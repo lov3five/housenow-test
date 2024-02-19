@@ -48,6 +48,11 @@ export const myFriendRouter = router({
             'userTotalFriendCount.userId',
             'friends.id'
           )
+          .innerJoin(
+            userMutualFriendCount(conn).as('userMutualFriendCount'),
+            'userMutualFriendCount.friendUserId',
+            'friends.id'
+          )
           .where('friendships.userId', '=', ctx.session.userId)
           .where('friendships.friendUserId', '=', input.friendUserId)
           .where(
@@ -60,6 +65,7 @@ export const myFriendRouter = router({
             'friends.fullName',
             'friends.phoneNumber',
             'totalFriendCount',
+            'mutualFriendCount',
           ])
           .executeTakeFirstOrThrow(() => new TRPCError({ code: 'NOT_FOUND' }))
           .then(
@@ -73,13 +79,13 @@ export const myFriendRouter = router({
           )
 
         // Answer for Question 4
-        const mutualFriendCount = await userMutualFriendCount(conn)
+        /* const mutualFriendCount = await userMutualFriendCount(conn)
           .where('friendships.friendUserId', '=', input.friendUserId)
-          .executeTakeFirst()
+          .executeTakeFirst() */
 
         return {
           ...friendInfo,
-          mutualFriendCount: mutualFriendCount?.mutualFriendCount || 0,
+          //mutualFriendCount: mutualFriendCount?.mutualFriendCount || 0,
         }
       })
     }),
