@@ -21,7 +21,7 @@ export const myFriendRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.connection().execute(async (conn) =>
+      return ctx.db.connection().execute(async (conn) => {
         /**
          * Question 4: Implement mutual friend count
          *
@@ -40,7 +40,8 @@ export const myFriendRouter = router({
          * Documentation references:
          *  - https://kysely-org.github.io/kysely/classes/SelectQueryBuilder.html#innerJoin
          */
-        conn
+
+        const friendInfo = await conn
           .selectFrom('users as friends')
           .innerJoin('friendships', 'friendships.friendUserId', 'friends.id')
           .innerJoin(
@@ -71,7 +72,17 @@ export const myFriendRouter = router({
               mutualFriendCount: CountSchema,
             }).parse
           )
-      )
+
+        // Answer for Question 4
+        const mutualFriendCount = await userMutualFriendCount(conn)
+          .where('friendships.friendUserId', '=', input.friendUserId)
+          .executeTakeFirst()
+
+        return {
+          ...friendInfo,
+          mutualFriendCount: mutualFriendCount?.mutualFriendCount || 0,
+        }
+      })
     }),
 })
 
@@ -86,21 +97,15 @@ const userTotalFriendCount = (db: Database) => {
     .groupBy('friendships.userId')
 }
 
-/* Test data
-  A - B 
-  A - C 
-  A - D 
-  B - C 
-  - A có 1 bạn chung với B (C)
-  ...
-*/
+// Answer for Question 4
 const userMutualFriendCount = (db: Database) => {
   return db
     .selectFrom('friendships')
     .where('friendships.status', '=', FriendshipStatusSchema.Values['accepted'])
     .select((eb) => [
       'friendships.userId',
-      eb.fn.count('friendships.friendUserId').as('totalFriendCount'),
+      'friendships.friendUserId',
+      eb.fn.count('friendships.friendUserId').as('mutualFriendCount'),
     ])
     .groupBy('friendships.userId')
 }
